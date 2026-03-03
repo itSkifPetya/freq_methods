@@ -1,0 +1,713 @@
+\documentclass[a4paper, 12pt]{article}
+
+% Essential packages
+\usepackage[T2A]{fontenc} % Must be first
+\usepackage[utf8]{inputenc}
+\usepackage[russian, english]{babel}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{indentfirst}
+\usepackage{authblk}
+\usepackage{gensymb}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{
+    language=Matlab,
+    basicstyle=\ttfamily\small,
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    breaklines=true,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!50!black},
+    stringstyle=\color{red},
+    frame=single
+}
+
+% Page margins setup
+\geometry{left=2cm, right=2cm, bottom=2cm, top=2cm}
+
+% Hyperlink setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan
+}
+
+\begin{document}
+\begin{titlepage}
+
+\begin{minipage}[c]{0.65\textwidth}
+    {\vspace{0.5cm}\Large\textbf{УНИВЕРСИТЕТ ИТМО}}\\
+    \small{Факультет Систем Управления и Робототехники}
+\end{minipage}
+\begin{minipage}[c]{0.35\textwidth}
+    \begin{flushright}
+        \includegraphics[width=0.8\textwidth]{itmo.png}
+    \end{flushright}
+\end{minipage}
+
+\vfill
+\vfill
+
+\begin{center}
+\textbf{\Large Лабораторная работа №1 <<Ряды Фурье>>}\\[5pt]
+{\large Частотные методы}
+
+
+\vfill
+\vfill
+
+\begin{flushleft}
+    Выполнили:\\
+    \text{Бурдасова Виктория: 465306}\\
+    \text{Жаворонков Пётр: 465877}\\
+    \text{Беляев Александр: }
+\end{flushleft}
+
+\vfill
+
+Санкт-Петербург\\
+2026
+
+\end{center}
+\end{titlepage}
+
+\tableofcontents
+
+\newpage
+\section{Вещественные функции}
+Задание: Задаться числами $a,\ b,\ t_0,\ t_1,\ t_2$ такими, что $a,\ b > 0$ и $t_2 > t_1 > t_0 > 0$.
+Рассмотреть следующие функции $f : \mathbb{R} \to \mathbb{R}$:
+
+\begin{enumerate}
+    \item \textbf{Квадратная волна} --- периодическая функция с периодом $T = t_2 - t_0$ такая, что
+    \[
+    f(t) =
+    \begin{cases}
+        a, & t \in [t_0, t_1), \\
+        b, & t \in [t_1, t_2).
+    \end{cases}
+    \]
+    
+    \item \textbf{Чётная} периодическая функция, которая не может быть 
+    представлена конечным числом членов ряда Фурье, на ваш выбор.
+
+    \item \textbf{Нечётная} периодическая функция, которая не может быть 
+    представлена конечным числом членов ряда Фурье, на ваш выбор.
+
+    \item Периодическая функция, которая не может быть представлена 
+    конечным числом членов ряда Фурье и которая не является 
+    ни чётной, ни нечётной, на ваш выбор.
+\end{enumerate}
+
+Также для каждой из функций необходимо рассмотреть частичные суммы рядов Фурье $F_N$ и $G_N$ вида:
+\[
+F_N(t) = \frac{a_0}{2} + \sum_{n=1}^{N}
+\left( a_n \cos(\omega_n t) + b_n \sin(\omega_n t) \right),
+\] 
+
+\[
+G_N(t) = \sum_{n=-N}^{N} c_n e^{i \omega_n t},
+\]
+
+где $\omega_n = \dfrac{2\pi n}{T}$.\\
+
+Для этого:
+
+\begin{enumerate}
+    \item Проанализировать рассматриваемые функции и определить,
+    очевидны ли значения некоторых коэффициентов.
+
+    \item Написать программу для вычисления коэффициентов рядов Фурье
+    $(a_n, b_n)$ и $c_n$ для произвольного $N$.
+    Привести в отчёте полученные коэффициенты при $N = 2$.
+    Проверить, подтвердились ли догадки.
+
+    \item Задаться пятью различными значениями $N$ и построить графики
+    $F_N(t)$ и $G_N(t)$.
+    Сравнить их друг с другом и с графиком исходной функции $f(t)$:
+    для каждого значения $N$ на одном рисунке должен быть приведён
+    набор графиков $F_N(t)$, $G_N(t)$ и $f(t)$ на одной координатной
+    плоскости.
+
+    \item Выбрать наибольшее из рассмотренных $N$ и проверить выполнение
+    равенства Парсеваля для оригинала функции $f(t)$ и рассмотренных
+    частичных сумм ряда $F_N(t)$ и $G_N(t)$.
+    При проверке равенства приводить формулы, по которым осуществляется
+    проверка. Объяснить разницу между величинами.
+\end{enumerate}
+
+\subsection{Квадратная волна}
+Выберем коэффициенты. Пусть a = 12; b = 6; $t_0$ = 1; $t_1$ = 2; $t_2$ = 3;\\
+
+\[
+    f(t) =
+    \begin{cases}
+        12, & t \in [1, 2), \\
+        6, & t \in [2, 3).
+    \end{cases}
+\]\\
+
+Её период равен $T = t_2 - t_0 = 3 - 1 = 2$, а график выглядит так:
+\begin{figure}[h!] 
+\centering
+\begin{tabular}{ll}
+\includegraphics[scale=0.6]{images/graphs/figure_1.pdf}
+\end{tabular}
+\caption{График квадратной волны, отражающий 3 периода}
+\end{figure}\\
+
+\textbf{Последовательность выполнения:}
+\begin{enumerate}
+    \item Заданы параметры: $a = 12$, $b = 6$, $t_0 = 1$, $t_1 = 2$, $t_2 = 3$
+    \item Вычислен период функции: $T = t_2 - t_0 = 2$
+    \item Реализована функция $f_1(t)$, возвращающая значение $a$ на интервале $[t_0, t_1)$ и $b$ на $[t_1, t_2)$ с обеспечением периодичности через операцию модуля
+    \item Для построения графика определён интервал времени $[t_0-T, t_2+T]$, охватывающий 3 периода
+    \item Построен график исходной функции
+    \item С помощью функции \texttt{compute\_fourier\_coefficients()} вычислены коэффициенты Фурье для различных значений $N$
+    \item Приведены результаты вычислений при $N = 2$
+    \item Построены графики частичных сумм $F_N(t)$ и $G_N(t)$ для $N = \{2, 3, 10, 20, 50, 100\}$
+    \item Проведено сравнение графиков разложений с исходной функцией
+    \item Для максимального $N = 100$ выполнена проверка равенства Парсеваля
+\end{enumerate}
+
+Теперь рассмотрим частичные суммы этой функции вида:
+
+\[
+F_N(t) = \frac{a_0}{2} + \sum_{n=1}^{N}
+\left( a_n \cos(\omega_n t) + b_n \sin(\omega_n t) \right),
+\]
+
+\[
+G_N(t) = \sum_{n=-N}^{N} c_n e^{i \omega_n t},
+\]
+
+где $\omega_n = \dfrac{2\pi n}{T}$.\\
+
+Коэффициенты $a_n$, $b_n$ и $c_n$ вычисляются по формулам:
+
+\[
+a_n = \frac{1}{\pi}\int_{-\pi}^{\pi}f(t)\cos(nt)dt
+\]
+\[
+b_n = \frac{1}{\pi}\int_{-\pi}^{\pi}f(t)\sin(nt)dt
+\]
+\[
+c_n = \frac{1}{2\pi}\int_{-\pi}^{\pi}f(t)(\cos(nt)-i\sin(nt))dt=
+\frac{1}{2\pi}\int_{-\pi}^{\pi}f(t)e^{-int}dt
+\]
+
+\textbf{Анализ коэффициентов:} Квадратная волна не является ни чётной, ни нечётной функцией, поэтому в разложении Фурье присутствуют как косинусоидальные, так и синусоидальные компоненты. Однако при определённых $n$ некоторые коэффициенты могут обращаться в ноль.
+
+С помощью программы найдём коэффициенты $a_n$, $b_n$ и $c_n$ при N = 2:\\
+$a_0=18$\\
+$a_1=0;\ b_1=-3.82$\\
+$a_2=0;\ b_2=0$\\
+$c_{-2}=0$\\
+$c_{-1}=0-1.91j$\\
+$c_0=9.00$\\
+$c_1=1.91j$\\
+$c_2=0$\\
+
+Зададимся следующими значениями $N = {2,\ 3,\ 10,\ 20,\ 50}$.
+
+Теперь рассмотрим графики $F_N(t)$ и $G_N(t)$ для каждого $N$:
+
+\begin{figure}[h!] 
+\centering
+\begin{tabular}{ll}
+\includegraphics[scale=0.7]{images/graphs/figure_2.pdf}
+\end{tabular}
+\caption{График частичных сумм при N = 2}
+\end{figure}
+
+\begin{figure}[h!] 
+\centering
+\begin{tabular}{ll}
+\includegraphics[scale=0.7]{images/graphs/figure_3.pdf}
+\end{tabular}
+\caption{График частичных сумм при N = 3}
+\end{figure}
+
+\begin{figure}[H] 
+\centering
+\begin{tabular}{ll}
+\includegraphics[scale=0.7]{images/graphs/figure_4.pdf}
+\end{tabular}
+\caption{График частичных сумм при N = 10}
+\end{figure}
+
+\begin{figure}[h!] 
+\centering
+\begin{tabular}{ll}
+\includegraphics[scale=0.7]{images/graphs/figure_5.pdf}
+\end{tabular}
+\caption{График частичных сумм при N = 20}
+\end{figure}
+
+\begin{figure}[h!] 
+\centering
+\begin{tabular}{ll}
+\includegraphics[scale=0.7]{images/graphs/figure_6.pdf}
+\end{tabular}
+\caption{График частичных сумм при N = 50}
+\end{figure}
+
+
+
+\subsection{Чётная периодическая функция.}
+Зададим следующую чётную периодическую функцию:\\
+
+\[
+    f(t) =
+    \begin{cases}
+        4\cdot t + 12, & t \in [-3, -2), \\
+        -2\cdot t, & t \in [-2, -1),\\
+        2, & t \in [-1, 1),\\
+        2\cdot t, & t \in [1, 2),\\
+        -4\cdot t + 12, & t \in [2, 3),
+    \end{cases}
+\]\\
+
+Её период равен $T = t_2 - t_0 = 3 - (-3) = 6$, а график выглядит так:
+\begin{figure}[h!] 
+\centering
+\begin{tabular}{ll}
+\includegraphics[scale=0.6]{images/function2.png}
+\end{tabular}
+\caption{График чётной периодической функции, отражающий 3 периода}
+\end{figure}
+
+\textbf{Последовательность выполнения:}
+\begin{enumerate}
+    \item Заданы параметры: $t_0 = -3$, $t_1 = -2$, $t_2 = -1$, $t_3 = 1$, $t_4 = 2$, $t_5 = 3$
+    \item Вычислен период функции: $T = 6$
+    \item Реализована кусочно-линейная функция $f_2(t)$, обладающая свойством чётности относительно начала координат
+    \item Для построения графика определён интервал времени, охватывающий 3 периода
+    \item Построен график исходной функции
+    \item Проведён анализ симметрии: вследствие чётности функции коэффициенты $b_n = 0$ для всех $n$
+    \item С помощью функции \texttt{compute\_fourier\_coefficients()} вычислены коэффициенты $a_n$ и $c_n$ для различных значений $N$
+    \item Приведены результаты вычислений при $N = 2$ и подтверждены аналитические ожидания ($b_n = 0$)
+    \item Построены графики частичных сумм $F_N(t)$ и $G_N(t)$ для $N = \{2, 3, 10, 20, 50, 100\}$
+    \item Проведено сравнение графиков разложений с исходной функцией
+\end{enumerate}
+
+Теперь рассмотрим частичные суммы этой функции вида:
+
+\[
+F_N(t) = \frac{a_0}{2} + \sum_{n=1}^{N}
+\left( a_n \cos(\omega_n t) + b_n \sin(\omega_n t) \right),
+\]
+
+\[
+G_N(t) = \sum_{n=-N}^{N} c_n e^{i \omega_n t},
+\]
+
+где $\omega_n = \dfrac{2\pi n}{T}$.\\
+
+Коэффициенты $a_n$, $b_n$ и $c_n$ вычисляются по формулам:
+
+\[
+a_n = \frac{1}{\pi}\int_{-\pi}^{\pi}f(t)\cos(nt)dt
+\]
+\[
+b_n = \frac{1}{\pi}\int_{-\pi}^{\pi}f(t)\sin(nt)dt
+\]
+\[
+c_n = \frac{1}{2\pi}\int_{-\pi}^{\pi}f(t)(\cos(nt)-i\sin(nt))dt=
+\frac{1}{2\pi}\int_{-\pi}^{\pi}f(t)e^{-int}dt
+\]
+
+Очевидно, что коэффициент $b_n = 0$, потому что рассматриваемая функция $f(t)$ чётная, а функция синуса --- нечётная. Значит, осталось вычислить только $a_n$ и $c_n$ с помощью программы (1).
+
+Получим такие результаты при $N = 2$:\\
+$a_2 \approx -1.103 $\\
+$b_2 = 0$\\
+$c_2 \approx -0.55+0\cdot i$\\ 
+
+Догадки по поводу коэффициента $b_n$ подтвердились: он действительно равен 0.\\
+
+Зададимся следующими значениями $N = {2,\ 3,\ 10,\ 20,\ 50}$.
+
+Теперь рассмотрим графики $F_N(t)$ и $G_N(t)$ для каждого $N$:
+
+
+\newpage
+\subsection{Нечётная периодическая функция (Пилообразная волна)}
+В общем виде пилообразная волная задаётся следующим выражением:
+$$f(t) = \frac{2A}{T}\cdot t,\;\;\;t\in[-\frac{T}{2};\frac{T}{2}]$$
+
+Коэффициент А отвечает за амплитуду, T --- период. Выберем параметры: $A = 7$, $T = 2\pi\approx 6.28$. Тогда:
+$$f(t) = \frac{14t}{2\pi} = \frac{7t}{\pi}$$
+
+3 периода данной функции выглядят следующим образом:
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/figure_13.pdf}
+    \caption{График пилообразной волны, отражающий 3 периода}
+    \label{fig:placeholder}
+\end{figure}
+
+Так как функция подбиралась как нечётная, в разложении Фурье будет отсутствовать косинус-составляющая, следовательно все коэффициенты $a_i\equiv0,\;\;i=1...N$. Если рассмотреть график функции только на одном периоде, можно заметить, что он симметричен относительно точки пересечения с осью ординат, то есть среднее значение сигнала будет лежать на этой оси, следовательно $a_0=0$.
+
+Вывод программы для этой функции при $N=2$:
+
+\begin{minted}{text}
+Разложение 2 порядка:
+[CFC] For real Fourier:
+[CFC] a_0=-0.00
+[CFC] a_1=2.8271597168564594e-16; b_1=4.456338406573071
+[CFC] a_2=-4.598774148841224e-16; b_2=-2.228169203286535
+[CFC] For complex Fourier:
+[CFC] c_-2=(-2.299387074420612e-16-1.1140846016432675j)
+[CFC] c_-1=(1.4135798584282297e-16+2.2281692032865354j)
+[CFC] c_0=-2.8271597168564594e-16
+[CFC] c_1=(1.4135798584282297e-16-2.2281692032865354j)
+[CFC] c_2=(-2.299387074420612e-16+1.1140846016432675j)
+\end{minted}
+
+Видим, что значение коэффициентов $a_n$ на 16 порядков меньше, чем значения $b_n$, то есть влияние косинусоид настолько мало, что его можно считать нулевым. 
+
+Для всех выбранных N получились следующие графики:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c c}
+      \includegraphics[width=0.5\textwidth]{images/graphs/figure_16.pdf}   & \includegraphics[width=0.5\textwidth]{images/graphs/figure_17.pdf}  \\
+    \end{tabular}
+    % \caption{Caption}
+    \label{tab:placeholder}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c c}
+      \includegraphics[width=0.5\textwidth]{images/graphs/figure_18.pdf}   & \includegraphics[width=0.5\textwidth]{images/graphs/figure_19.pdf}  \\
+    \end{tabular}
+    % \caption{Caption}
+    \label{tab:placeholder}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/graphs/figure_20.pdf}
+    \label{fig:placeholder}
+\end{figure}
+
+\textbf{Проверка равенства Парсеваля}
+
+Для комплексного ряда Фурье равенство Парсеваля имеет вид:
+\[
+\frac{1}{T}\int_{t_0}^{t_0+T} |f(t)|^2dt = \sum_{n=-N}^{N} |c_n|^2
+\]
+
+Для данной функции $f(t) = \frac{7t}{\pi}$ с периодом $T = 2\pi$:
+\[
+\frac{1}{2\pi}\int_{-\pi}^{\pi} \left(\frac{7t}{\pi}\right)^2dt = \sum_{n=-N}^{N} |c_n|^2
+\]
+
+Проверим равенство Парсеваля для максимального рассмотренного $N = 50$:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Величина} & \textbf{Значение} \\
+\hline
+Левая часть $\displaystyle\frac{1}{2\pi}\int_{-\pi}^{\pi} \left(\frac{7t}{\pi}\right)^2dt$ & 16.333333 \\
+Правая часть $\displaystyle\sum_{n=-50}^{50} |c_n|^2$ & 16.136716 \\
+Абсолютная разница & $1.966 \times 10^{-1}$ \\
+\hline
+\end{tabular}
+\caption{Проверка равенства Парсеваля при $N = 50$ для пилообразной волны}
+\end{table}
+
+\textbf{Анализ:} Равенство Парсеваля выполняется с хорошей точностью. Разница между левой частью (интегралом от $f^2(t)$) и правой частью (суммой квадратов модулей комплексных коэффициентов) составляет около $0.197$, что соответствует относительной погрешности $\approx 1.2\%$. Эта погрешность обусловлена конечным числом членов ряда Фурье ($N=50$). При увеличении $N$ погрешность будет уменьшаться.
+
+
+\subsection{Периодическая функция (ни чётная, ни нечётная)}
+Рассмотрим периодическую функцию вида:
+$$f(t) = (1-\pi)^2 \sin(t) + t, \quad t \in [0, T)$$
+
+где период $T = 4\pi \approx 12.57$.
+
+3 периода данной функции выглядят следующим образом:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/graphs/figure_22.pdf}
+    % \caption{График функции, отражающий 3 периода}
+    \label{fig:placeholder}
+\end{figure}
+
+Так как функция не является ни чётной, ни нечётной, так как помимо синуса содержит полиномиальную часть, в разложении Фурье будут присутствовать как косинусоидальные, так и синусоидальные компоненты, однако синус присутствует в выражении явно, а косинус --- нет, поэтому вероятно коэффициент при косинусе будет сильно меньше, чем при синусе. При этом функция полностью находится в положительной по вертикальной оси части плоскости, значит $\displaystyle 0\le \frac{a_0}{2}\le sup(f)$.
+
+Вывод программы для этой функции при $N=2$:
+
+\begin{minted}{text}
+[CFC] For real Fourier:
+[CFC] a_0=12.57
+[CFC] a_1=9.979426752319347e-17; b_1=-4.000000000000001
+[CFC] a_2=-1.6606481500369727e-15; b_2=2.5864190939097713
+[CFC] For complex Fourier:
+[CFC] c_-2=(-8.303240750184864e-16+1.2932095469548857j)
+[CFC] c_-1=(4.9897133761596735e-17-2.0000000000000004j)
+[CFC] c_0=6.283185307179585
+[CFC] c_1=(4.9897133761596735e-17+2.0000000000000004j)
+[CFC] c_2=(-8.303240750184864e-16-1.2932095469548857j)
+\end{minted}
+
+Для данной функции значения $a_n$ на 17 и 15 порядков соответственно меньше значений $b_n$. В целом расчёты подтверждают анализ, однако ожидалось, что разность порядков будет по крайней мере меньше, чем в прошлом примере, где вклад косинусоиды приравнивается к нулю.
+
+Для всех выбранных N получились следующие графики:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c c}
+      \includegraphics[width=0.5\textwidth]{images/graphs/figure_23.pdf}   & \includegraphics[width=0.5\textwidth]{images/graphs/figure_24.pdf}  \\
+    \end{tabular}
+    % \caption{Caption}
+    \label{tab:placeholder}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c c}
+      \includegraphics[width=0.5\textwidth]{images/graphs/figure_25.pdf}   & \includegraphics[width=0.5\textwidth]{images/graphs/figure_26.pdf}  \\
+    \end{tabular}
+    % \caption{Caption}
+    \label{tab:placeholder}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/graphs/figure_27.pdf}
+    \label{fig:placeholder}
+\end{figure}
+
+\textbf{Проверка равенства Парсеваля}
+
+Для комплексного ряда Фурье равенство Парсеваля имеет вид:
+\[
+\frac{1}{T}\int_{t_0}^{t_0+T} |f(t)|^2dt = \sum_{n=-N}^{N} |c_n|^2
+\]
+
+Для данной функции $f(t) = (1-\pi)^2 \sin(t) + t$ с периодом $T = 4\pi$:
+\[
+\frac{1}{4\pi}\int_{-4\pi}^{0} \left[(1-\pi)^2 \sin(t) + t\right]^2dt = \sum_{n=-N}^{N} |c_n|^2
+\]
+
+Проверим равенство Парсеваля для максимального рассмотренного $N = 50$:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Величина} & \textbf{Значение} \\
+\hline
+Левая часть $\displaystyle\frac{1}{4\pi}\int_{-4\pi}^{0} \left[(1-\pi)^2 \sin(t) + t\right]^2dt$ & 53.982672 \\
+Правая часть $\displaystyle\sum_{n=-50}^{50} |c_n|^2$ & 53.824261 \\
+Абсолютная разница & $1.584 \times 10^{-1}$ \\
+\hline
+\end{tabular}
+\caption{Проверка равенства Парсеваля при $N = 50$}
+\end{table}
+
+\textbf{Анализ:} Равенство Парсеваля выполняется с хорошей точностью. Разница между левой частью (интегралом от $f^2(t)$) и правой частью (суммой квадратов модулей комплексных коэффициентов) составляет около $0.158$, что соответствует относительной погрешности $\approx 0.29\%$. Это меньше, чем для пилообразной волны, что может быть связано с более гладким характером функции. Погрешность обусловлена конечным числом членов ряда Фурье ($N=50$). При увеличении $N$ погрешность будет уменьшаться.
+
+
+\section{Комплексная функция}
+\subsection{Аналитическое выражение функции \( f(t) \)}
+
+Согласно методичке, задана комплекснозначная периодическая функция с периодом \( T \) и параметром \( R > 0 \). Её действительная и мнимая части на одном периоде \( \left[-\frac{T}{8}, \frac{7T}{8}\right] \) определяются кусочно-линейными выражениями:
+
+\[
+\text{Re}(f(t)) =
+\begin{cases}
+R, & t \in \left[-\frac{T}{8}, \frac{T}{8}\right) \\
+2R - \frac{8Rt}{T}, & t \in \left[\frac{T}{8}, \frac{3T}{8}\right) \\
+-R, & t \in \left[\frac{3T}{8}, \frac{5T}{8}\right) \\
+-6R + \frac{8Rt}{T}, & t \in \left[\frac{5T}{8}, \frac{7T}{8}\right)
+\end{cases}
+\]
+
+\[
+\text{Im}(f(t)) =
+\begin{cases}
+\frac{8Rt}{T}, & t \in \left[-\frac{T}{8}, \frac{T}{8}\right) \\
+R, & t \in \left[\frac{T}{8}, \frac{3T}{8}\right) \\
+4R - \frac{8Rt}{T}, & t \in \left[\frac{3T}{8}, \frac{5T}{8}\right) \\
+-R, & t \in \left[\frac{5T}{8}, \frac{7T}{8}\right)
+\end{cases}
+\]
+
+В работе приняты значения \( R = 4.0 \), \( T = 8.0 \). 
+
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/1.png}
+    \caption{Параметрический график исходной функции f(t) на комплексной плоскости}
+    \label{fig:placeholder}
+\end{figure}
+
+
+
+\newpage
+\textbf{Ряд Фурье для комплексной функции}
+
+Комплексный ряд Фурье имеет вид:
+\[
+G_N(t) = \sum_{n=-N}^N c_n e^{i\omega_n t}, \quad \omega_n = \frac{2\pi n}{T} 
+\]
+
+Коэффициенты \(c_n\) вычисляются по формуле:
+\[
+c_n = \frac{1}{T} \int_{-T/8}^{T/8} f(t)e^{-i\omega_n t}\, dt 
+\]
+
+\textbf{Численные значения коэффициентов при \(N = 2\)}
+
+\[
+\begin{aligned}
+c_0 &= 0.0000 + 0.0000i = 0, \\
+c_1 &= 4.5853 + 0.0000i = 4.5853, \\
+c_2 &= 0.0000 + 0.0000i = 0.
+\end{aligned}
+\]
+
+
+\subsection{Параметрические графики частичных сумм на комплексной плоскости}
+
+
+
+
+\subsection*{При N=1}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/2.png}
+    \caption{Параметрический график комплексной функции \( f(t) \) и её приближения \( G_1(t) \)}
+    \label{fig:placeHolder1}
+\end{figure}
+
+\newpage
+\subsection*{При N=2}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/3.png}
+    \caption{Параметрический график комплексной функции \( f(t) \) и её приближения \( G_2(t) \)}
+    \label{fig:placeHolder2}
+\end{figure}
+
+
+
+\newpage
+\subsection*{При N=3}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/4.png}
+    \caption{Параметрический график комплексной функции \( f(t) \) и её приближения \( G_3(t) \)}
+    \label{fig:placeholder}
+\end{figure}
+
+
+
+\newpage
+\subsection*{При N=10}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/5.png}
+    \caption{Параметрический график комплексной функции \( f(t) \) и её приближения \( G_4(t) \)}
+    \label{fig:placeholder}
+\end{figure}
+
+
+\newpage
+\subsection{Графики вещественной и мнимой частей}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/6.png}
+    \caption{Вещественная и мнимая части комплексной функции \( f(t) \) и её приближения \( G_1(t) \) при \( N=1 \)}
+    \label{fig:placeholder}
+\end{figure}
+
+
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/7.png}
+    \caption{Вещественная и мнимая части комплексной функции \( f(t) \) и её приближения \( G_2(t) \) при \( N=2 \)}
+    \label{fig:placeholder}
+\end{figure}
+
+
+
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/8.png}
+    \caption{Вещественная и мнимая части комплексной функции \( f(t) \) и её приближения \( G_3(t) \) при \( N=3 \)}
+    \label{fig:placeholder}
+\end{figure}
+
+
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/9.png}
+    \caption{Вещественная и мнимая части комплексной функции \( f(t) \) и её приближения \( G_4(t) \) при \( N=4 \)}
+    \label{fig:placeholder}
+\end{figure}
+
+
+
+
+
+\subsection{Проверка равенства Парсеваля}
+
+Для комплексного ряда Фурье равенство Парсеваля имеет вид:
+\begin{equation}
+\frac{1}{T} \int_{-T/8}^{T/8} |f(t)|^2 dt = \sum_{n=-\infty}^{\infty} |c_n|^2
+\end{equation}
+
+\textbf{Левая часть (энергия сигнала):}
+\[
+E_f = \frac{1}{T} \int_{-T/8}^{T/8} |f(t)|^2 dt
+\]
+
+\textbf{Правая часть (энергия ряда):}
+\[
+E_G = \sum_{n=-N}^{N} |c_n|^2
+\]
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Величина} & \textbf{Значение} \\
+\hline
+Левая часть $\int_{-T/8}^{T/8} |f(t)|^2 dt$ & 21.333344 \\
+Правая часть $\sum_{n=-N}^{N} |c_n|^2$ & 21.329897 \\
+Абсолютная разница & 3.45 $\times$ 10$^{-3}$ \\
+\hline
+\end{tabular}
+\caption{Проверка равенства Парсеваля при N = 10}
+\end{table}
+
+\textbf{Пояснение:} Равенство Парсеваля выполнено с высокой точностью. Разница между левой частью (интегралом от \( |f(t)|^2 \)) и правой частью (суммой квадратов коэффициентов Фурье) составила \( 3.45 \times 10^{-3} \), что подтверждает корректность разложения функции в ряд Фурье.
+
+
+\section{Приложение}
+
+
+\end{document}
