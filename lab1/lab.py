@@ -108,27 +108,27 @@ def draw_graphs(t, f, T, t0, N=[], disc_points=[], N2_title=""):
         out = n == 2
         if out: print(f"\n{N2_title}\nРазложение 2 порядка:")
         (a0, an, bn, cn) = compute_fourier_coefficients(f, T, n, t0, out=out, disc_points=disc_points)
-        plt.figure()
+        plt.figure(figsize=(12, 5))
         plt.grid()
-        plt.plot(t, f(t), color="purple", label="Исходная функция", linewidth=3)
+        plt.plot(t, f(t), color="purple", label=r"f$(t)$", linewidth=3)
         if not out:
-            plt.title(r"Графики $F_N(t)$ и $G_N(t)$" + f" при N={n}")
+            plt.title(r"Графики $F_N(t)$ и $G_N(t)$" + f" при N={n}", fontsize=16)
             F_N = build_real_fourier(a0,an,bn,T)
             G_N = build_complex_fourier(cn, T)
-            plt.plot(t, F_N(t) , color="green", label=r"Вещественный ряд $F_N(t)$", linewidth=2,)
-            plt.plot(t, G_N(t), color="lightblue", label=r"Комплексный ряд $G_N(t)$", linewidth=1)
-            plt.legend(loc="best")
+            plt.plot(t, F_N(t) , color="green", label=r"$F_N(t)$", linewidth=2)
+            plt.plot(t, G_N(t), color="lightblue", label=r"$G_N(t)$", linewidth=1)
+            plt.legend(loc="best", fontsize=16)
         else:
-            plt.title(N2_title)
+            plt.title(N2_title, fontsize=16)
         
-        plt.plot(t, t*[0])
-        plt.axvline(0)
-        plt.xlabel("t", fontsize=15, labelpad=10)
+        # plt.plot(t, t*[0])
+        # plt.axvline(0)
+        plt.xlabel("t", fontsize=16, labelpad=10)
         plt.grid(True)
         
-        plt.axis('equal')
+        # plt.axis('equal')
 
-N_variations = [2, 3, 10, 20, 50, 100]
+N_variations = [2, 3, 10, 20, 50]
 
 ## Задание 1.1
 
@@ -224,7 +224,7 @@ lambda_f4 = lambda t: f4(t, T4, a)
 t = np.linspace(-T4, T4*2, 1000)
 draw_graphs(t, lambda_f4, T4, t[0], N_variations, N2_title=f"Биение T={T4:.2f}")
 
-# save_separate_figures(path="/Users/itskifpetya/dev/freq_methods/lab1/graphs/")
+# save_separate_figures(path="~/dev/freq_methods/lab1/graphs/")
 plt.show()
 
 
