@@ -200,7 +200,7 @@ lambda_f1 = lambda t: f1(t, t0, t1, t2, T1, a, b)
 t = np.linspace(t_start, t_end, 2000)
 
 # draw_graphs(t, lambda_f1, T1, t0, N=N_variations, disc_points=[t0, t1, t2], N2_title=f"Квадратная волна. T={T1:.2f}")
-
+check_parseval(lambda_f1, T1, max(N_variations), t0=t0, out=True)
 
 T2 = 6
 t0 = -3
@@ -246,7 +246,7 @@ t = np.linspace(t_start, t_end, 5000)
 
 lambda_f2 = lambda t: f2(t, t0, t1, t2, t3, t4, t5, T2)
 # draw_graphs(t, lambda_f2, T2, t0, N=N_variations, disc_points=[t0, t1, t2, t3, t4, t5], N2_title=f"Котики T={T2:.2f}")
-
+check_parseval(lambda_f2, T2, N=max(N_variations), t0=t0, out=True)
 
 
 def f3(t, T, A):
