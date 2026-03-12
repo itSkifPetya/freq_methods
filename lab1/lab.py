@@ -58,12 +58,47 @@ def compute_fourier_coefficients(f, T, N, t0, out=True, disc_points=[]):
         res = "[CFC] For real Fourier:\n"
         res += f"[CFC] a_0={a0:.2f}\n"
         for n in range(1, N+1):
-            res += f"[CFC] a_{n}={a_arr[n-1]:.2f}; b_{n}={b_arr[n-1]:.2f}\n"
+            res += f"[CFC] a_{n}={a_arr[n-1]}; b_{n}={b_arr[n-1]}\n"
         res += "[CFC] For complex Fourier:\n"
         for n in range(-N, N+1):
-            res += f"[CFC] c_{n}={c_arr[n+N]:.2f}\n"
+            res += f"[CFC] c_{n}={c_arr[n+N]}\n"
+
         print(res)
     return (a0, a_arr, b_arr, c_arr)
+
+def check_parseval(f, T, N, t0, out=True, disc_points=[]):
+    """
+    Проверяет равенство Парсеваля для функции f
+    
+    :param f: Функция вида f(t) = lambda t -> f(t, param1, param2 ...)
+    :param T: Период функции
+    :param N: Точность/количество членов ряда Фурье
+    :param t0: Точка нижней границы периода функции
+    """
+    a0, a_arr, b_arr, c_arr = compute_fourier_coefficients(f, T, N, t0, out=False, disc_points=disc_points)
+    
+    f_squared = lambda t: f(t)**2
+    left_part, _ = quad(f_squared, t0, t0+T, points=disc_points, limit=100)
+    left_part /= T
+    
+    right_part_real = a0**2 / 4
+    for n in range(len(a_arr)):
+        right_part_real += (a_arr[n]**2 + b_arr[n]**2) / 2
+    
+    right_part_complex = 0
+    for n in range(len(c_arr)):
+        right_part_complex += np.abs(c_arr[n])**2
+    
+    if out:
+        res = "\n[Parseval] Left part (integral): "
+        res += f"{left_part:.6f}\n"
+        res += f"[Parseval] Right part (real Fourier): {right_part_real:.6f}\n"
+        res += f"[Parseval] Right part (complex Fourier): {right_part_complex:.6f}\n"
+        res += f"[Parseval] Difference (real): {abs(left_part - right_part_real):.6e}\n"
+        res += f"[Parseval] Difference (complex): {abs(left_part - right_part_complex):.6e}"
+        print(res)
+    
+    return (left_part, right_part_real, right_part_complex)
 
 def build_real_fourier(a0, a_n, b_n, T):
     """
@@ -105,7 +140,7 @@ def draw_graphs(t, f, T, t0, N=[], disc_points=[], N2_title=""):
     :param N: Описание
     """
     for n in N:
-        out = n == 2
+        out = n == 2 or n == max(N)
         if out: print(f"\n{N2_title}\nРазложение 2 порядка:")
         (a0, an, bn, cn) = compute_fourier_coefficients(f, T, n, t0, out=out, disc_points=disc_points)
         plt.figure(figsize=(12, 5))
@@ -115,22 +150,37 @@ def draw_graphs(t, f, T, t0, N=[], disc_points=[], N2_title=""):
             plt.title(r"Графики $F_N(t)$ и $G_N(t)$" + f" при N={n}", fontsize=16)
             F_N = build_real_fourier(a0,an,bn,T)
             G_N = build_complex_fourier(cn, T)
-            plt.plot(t, F_N(t) , color="green", label=r"$F_N(t)$", linewidth=2)
-            plt.plot(t, G_N(t), color="lightblue", label=r"$G_N(t)$", linewidth=1)
-            plt.legend(loc="best", fontsize=16)
+            plt.plot(t, F_N(t) , color="green", label=r"Вещественный ряд $F_N(t)$", linewidth=2,)
+            plt.plot(t, G_N(t), color="lightblue", label=r"Комплексный ряд $G_N(t)$", linewidth=1)
+            
         else:
-            plt.title(N2_title, fontsize=16)
+            plt.title(N2_title)
+            plt.xlabel("t", fontsize=15, labelpad=10)
+            plt.grid(True)
+            plt.axis('equal')
+
+            plt.figure()
+            plt.title(r"Графики $F_N(t)$ и $G_N(t)$" + f" при N={n}")
+            plt.grid()
+            plt.plot(t, f(t), color="purple", label="Исходная функция", linewidth=3)
+            F_N = build_real_fourier(a0,an,bn,T)
+            G_N = build_complex_fourier(cn, T)
+            plt.plot(t, F_N(t) , color="green", label=r"Вещественный ряд $F_N(t)$", linewidth=2,)
+            plt.plot(t, G_N(t), color="lightblue", label=r"Комплексный ряд $G_N(t)$", linewidth=1)
         
+
+        
+        plt.legend(loc="best")
         # plt.plot(t, t*[0])
         # plt.axvline(0)
-        plt.xlabel("t", fontsize=16, labelpad=10)
+        plt.xlabel("t", fontsize=15, labelpad=10)
         plt.grid(True)
         
         # plt.axis('equal')
 
-N_variations = [2, 3, 10, 20, 50]
 
-## Задание 1.1
+
+N_variations = [2, 3, 10, 20, 50]
 
 def f1(t, t0, t1, t2, T, a, b):
     mod = (t - t0) % T + t0
@@ -149,8 +199,8 @@ t_end = t2 + T1
 lambda_f1 = lambda t: f1(t, t0, t1, t2, T1, a, b)
 t = np.linspace(t_start, t_end, 2000)
 
-draw_graphs(t, lambda_f1, T1, t0, N=N_variations, disc_points=[t0, t1, t2], N2_title=f"1.1 Квадратная волна. T={T1:.2f}")
-
+# draw_graphs(t, lambda_f1, T1, t0, N=N_variations, disc_points=[t0, t1, t2], N2_title=f"Квадратная волна. T={T1:.2f}")
+check_parseval(lambda_f1, T1, max(N_variations), t0=t0, out=True)
 
 T2 = 6
 t0 = -3
@@ -195,8 +245,8 @@ t_end = t5 + T2
 t = np.linspace(t_start, t_end, 5000)
 
 lambda_f2 = lambda t: f2(t, t0, t1, t2, t3, t4, t5, T2)
-draw_graphs(t, lambda_f2, T2, t0, N=N_variations, disc_points=[t0, t1, t2, t3, t4, t5], N2_title=f"Котики T={T2:.2f}")
-
+# draw_graphs(t, lambda_f2, T2, t0, N=N_variations, disc_points=[t0, t1, t2, t3, t4, t5], N2_title=f"Котики T={T2:.2f}")
+check_parseval(lambda_f2, T2, N=max(N_variations), t0=t0, out=True)
 
 
 def f3(t, T, A):
@@ -211,8 +261,8 @@ a = 7
 
 lambda_f3 = lambda t: f3(t, T3, a)
 
-draw_graphs(t, lambda_f3, T3, t0=0, N=N_variations, N2_title=f"Пилообразная волна T={T3:.2f}")
-
+# draw_graphs(t, lambda_f3, T3, t0=0, N=N_variations, N2_title=f"Пилообразная волна T={T3:.2f}")
+check_parseval(lambda_f3, T3, N=max(N_variations), t0=0, out=True)
 def f4(t, T, a):
   t = np.mod(t, T)
   return (1-np.pi)**2*np.sin(a*t) + t
@@ -222,10 +272,11 @@ a = 1
 lambda_f4 = lambda t: f4(t, T4, a)
 
 t = np.linspace(-T4, T4*2, 1000)
-draw_graphs(t, lambda_f4, T4, t[0], N_variations, N2_title=f"Биение T={T4:.2f}")
+# draw_graphs(t, lambda_f4, T4, t[0], N_variations, N2_title=f"Биение T={T4:.2f}")
+check_parseval(lambda_f4, T4, N=max(N_variations), t0=t[0], out=True)
 
-# save_separate_figures(path="~/dev/freq_methods/lab1/graphs/")
-plt.show()
+# save_separate_figures(path="/Users/itskifpetya/dev/freq_methods/lab1/graphs/")
+# plt.show()
 
 
 

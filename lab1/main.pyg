@@ -1,0 +1,151 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import warnings
+import os
+
+warnings.filterwarnings('ignore')
+
+def save_separate_figures(extension="pdf", path=""):
+    """ Saves each active matplotlib figure to a separate file. """
+    os.makedirs(path, exist_ok=True)
+    fig_nums = plt.get_fignums()
+
+    for i in fig_nums:
+        plt.figure(i)
+        filename = f"figure_{i}.{extension}"
+        plt.savefig(os.path.join(path, filename))
+        print(f"Сохранен файл: {filename}")
+
+
+R = 4.0
+T = 8.0
+omega0 = 2 * np.pi / T
+
+N_values = [1, 2, 3, 10]
+N_max = max(N_values)
+
+plt.rcParams.update({'font.size': 14})
+
+
+def complex_function(t):
+    t_shifted = (t + T/8) % T - T/8
+    re = np.zeros_like(t_shifted)
+    im = np.zeros_like(t_shifted)
+
+    mask1 = (-T/8 <= t_shifted) & (t_shifted < T/8)
+    mask2 = (T/8 <= t_shifted) & (t_shifted < 3*T/8)
+    mask3 = (3*T/8 <= t_shifted) & (t_shifted < 5*T/8)
+    mask4 = (5*T/8 <= t_shifted) & (t_shifted < 7*T/8)
+
+    re[mask1] = R
+    im[mask1] = 8 * R * t_shifted[mask1] / T
+    re[mask2] = 2*R - 8 * R * t_shifted[mask2] / T
+    im[mask2] = R
+    re[mask3] = -R
+    im[mask3] = 4*R - 8 * R * t_shifted[mask3] / T
+    re[mask4] = -6*R + 8 * R * t_shifted[mask4] / T
+    im[mask4] = -R
+
+    return re + 1j * im
+
+
+def compute_coeffs(func, N_max):
+    M = 10000
+    t_points = np.linspace(0, T, M, endpoint=False)
+    dt = t_points[1] - t_points[0]
+    f_values = func(t_points)
+    coeffs = np.zeros(2* N_max + 1, dtype=complex)
+    for n in range(-N_max, N_max + 1):
+        idx = N_max + n
+        exp_values = np.exp(-1j * n * omega0 * t_points)
+        coeffs[idx] = np.sum(f_values * exp_values) * dt / T
+    return coeffs
+
+
+coeffs = compute_coeffs(complex_function, N_max)
+
+
+t_plot = np.linspace(0, 2*T, 2000)
+f_plot = complex_function(t_plot)
+
+def partial_sum(t, coeffs, N):
+    G_N = np.zeros_like(t, dtype=complex)
+    N_total = (len(coeffs) - 1) // 2
+    for n in range(-min(N, N_total), min(N, N_total) + 1):
+        idx = N_total + n
+        G_N += coeffs[idx] * np.exp(1j * n * omega0 * t)
+    return G_N
+
+# Построение графика исходной функции
+plt.figure(figsize=(10, 8))
+plt.plot(f_plot.real, f_plot.imag, 'b-', linewidth=2, label='$f(t)$', alpha=0.8)
+plt.title(f'Параметрический график исходной функции f(t)', fontsize=18)
+plt.grid(True, alpha=0.3)
+plt.legend(fontsize=14, loc='upper right')
+plt.axis('equal')
+plt.xlim([-R*1.2, R*1.2])
+plt.ylim([-R*1.2, R*1.2])
+plt.tight_layout()
+
+
+# Построение параметрических графиков на комплексной плоскости
+for N in N_values:
+    G_N = partial_sum(t_plot, coeffs, N)
+
+    plt.figure(figsize=(10, 8))
+    plt.plot(f_plot.real, f_plot.imag, 'b-', linewidth=2, label='$f(t)$', alpha=0.8)
+    plt.plot(G_N.real, G_N.imag, 'r--', linewidth=2, label=f'$G_{N}(t)$')
+    plt.xlabel('Re', fontsize=16)
+    plt.ylabel('Im', fontsize=16)
+    plt.title(f'Параметрический график, $N={N}$', fontsize=18)
+    plt.grid(True, alpha=0.3)
+    plt.legend(fontsize=14, loc='upper right')
+    plt.axis('equal')
+    plt.xlim([-R*1.2, R*1.2])
+    plt.ylim([-R*1.2, R*1.2])
+    plt.tight_layout()
+
+
+# Построение вещественной и мнимой частей отдельно для каждого N
+for N in N_values:
+    G_N = partial_sum(t_plot, coeffs, N)
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8))
+    # График вещественной части
+    ax1.plot(t_plot, f_plot.real, 'b-', linewidth=2, label='Re($f(t)$)', alpha=0.8)
+    ax1.plot(t_plot, G_N.real, 'r--', linewidth=2, label=f'Re($G_{N}(t)$)')
+    ax1.set_xlabel('$t$', fontsize=16)
+    ax1.set_ylabel('Re', fontsize=16)
+    ax1.set_title(f'Вещественная часть, $N={N}$', fontsize=18)
+    ax1.grid(True, alpha=0.3)
+    ax1.legend(fontsize=14)
+    ax1.set_xlim([0, 2*T])
+    # График мнимой части
+    ax2.plot(t_plot, f_plot.imag, 'g-', linewidth=2, label='Im($f(t)$)', alpha=0.8)
+    ax2.plot(t_plot, G_N.imag, 'm--', linewidth=2, label=f'Im($G_{N}(t)$)')
+    ax2.set_xlabel('$t$', fontsize=16)
+    ax2.set_ylabel('Im', fontsize=16)
+    ax2.set_title(f'Мнимая часть, $N={N}$', fontsize=18)
+    ax2.grid(True, alpha=0.3)
+    ax2.legend(fontsize=14)
+    ax2.set_xlim([0, 2*T])
+
+    plt.suptitle(f'Вещественная и мнимая части $N={N}$: ', fontsize=20)
+    plt.tight_layout()
+    #plt.show()
+
+# Вычисление левой части равенства Парсеваля
+t_parseval = np.linspace(0, T, 10000, endpoint=False)
+dt_parseval = t_parseval[1] - t_parseval[0]
+f_parseval = complex_function(t_parseval)
+left_parseval = np.sum(np.abs(f_parseval)**2) * dt_parseval / T
+
+# Вычисление правой части равенства Парсеваля
+N_parseval = N_max
+c_parseval = coeffs[N_max - N_parseval : N_max + N_parseval + 1]
+right_parseval = np.sum(np.abs(c_parseval)**2)
+
+print(left_parseval)
+print(right_parseval)
+
+plt.show()
+#save_separate_figures("pdf", r"C:\Users\alexb\OneDrive\Рабочий стол\итмо\ЧМ\lab1\картинки")

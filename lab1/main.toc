@@ -1,0 +1,17 @@
+\babel@toc {english}{}\relax 
+\contentsline {section}{\numberline {1}Вещественные функции}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Квадратная волна}{3}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Чётная периодическая функция.}{11}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}Нечётная периодическая функция (Пилообразная волна)}{13}{subsection.1.3}%
+\contentsline {subsection}{\numberline {1.4}Периодическая функция (ни чётная, ни нечётная)}{19}{subsection.1.4}%
+\contentsline {subsection}{\numberline {1.5}Выводы по заданию 1}{26}{subsection.1.5}%
+\contentsline {section}{\numberline {2}Комплексная функция}{27}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Аналитическое выражение функции \( f(t) \)}{27}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Параметрические графики частичных сумм на комплексной плоскости}{28}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Графики вещественной и мнимой частей}{32}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Проверка примерного равенства Парсеваля}{35}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}Выводы по заданию 2}{36}{subsection.2.5}%
+\contentsline {section}{\numberline {3}Общий вывод}{37}{section.3}%
+\contentsline {section}{\numberline {4}Приложение}{38}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Листинг к заданию 1}{38}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Листинг к заданию 2}{38}{subsection.4.2}%
