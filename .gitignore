@@ -1,2 +1,7 @@
 .venv
-lab1/graphs/
+*/graphs/
+*.log
+*.aux
+*.pyg
+*.toc
+main.out
