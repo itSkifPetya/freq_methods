@@ -1,7 +1,9 @@
-.venv
+.*_env
 */graphs/
 *.log
 *.aux
 *.pyg
 *.toc
+lab2/chords/
+*/_minted*/
 main.out
