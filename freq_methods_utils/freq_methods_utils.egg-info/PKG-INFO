@@ -1,0 +1,15 @@
+Metadata-Version: 2.4
+Name: freq_methods_utils
+Version: 1.0.0
+Summary: Инструменты для выполнения лабораторных работ по Частотным методам ИТМО СУИР 2026
+Author: Petor Zhavoronkov
+Requires-Dist: matplotlib
+Requires-Dist: numpy
+Requires-Dist: scipy
+Requires-Dist: pandas
+Requires-Dist: seaborn
+Requires-Dist: joblib
+Requires-Dist: librosa
+Dynamic: author
+Dynamic: requires-dist
+Dynamic: summary

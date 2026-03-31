@@ -425,9 +425,12 @@ a^2b\cdot\frac{2}{3}
 \]
 
 Найдём её Фурье-образ:
-\[
-\hat{f}(\nu) = \int^{\infty}_{-\infty} f(t)e^{-2\pi i \nu t}dt = \int^{\infty}_{-\infty} a\,\mathrm{sinc}(bt) e^{-2\pi i \nu t}dt = \frac{a}{b}\Pi\!\left(\frac{v}{b}\right)
-\]
+\begin{equation}
+    \hat{f}(\nu) = \int^{\infty}_{-\infty} f(t)e^{-2\pi i \nu t}dt = \int^{\infty}_{-\infty} a\,\mathrm{sinc}(bt) e^{-2\pi i \nu t}dt = \frac{a}{b}\Pi\!\left(\frac{v}{b}\right)
+    \label{equation: sinc img}    
+\end{equation}
+
+
 
 \[
 \hat f(v) =
@@ -651,97 +654,85 @@ E_\omega = \frac{2a^2 b^2}{\pi} \int_{-\infty}^\infty \frac{d\omega}{(b^2 + \ome
 \newpage
 \section{Комплексная функция}
 
-В данном задании используется унитарное преобразование Фурье к угловой частоте $\omega$:
-\[
-\hat{g}(\omega) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{\infty} g(t)e^{-i\omega t}dt
-\]
+\subsection{Аналитические выкладки}
+Рассмотрим функцию кардинальный синус из задания 1.3. Тогда функция $g(t)$ принимает следующий вид:
 
-Была выбрана функция кардинальный синус:
-\[
-f(t) = 3\,\mathrm{sinc}(t)
-\]
+$$g(t) = f(t+c) = 3sinc(t+c) = \frac{3sin(t+c)}{t+c}$$
 
-Исследуемая функция --- сдвинутый кардинальный синус:
-\[
-g(t) = f(t + c) = 3\,\mathrm{sinc}(t + c)
-\]
+Записываем унитарное преобразование Фурье к угловой скорости $\omega$:
+$$\hat g(\omega) = \frac{1}{\sqrt{2\pi}}\int_{-\infty}^{\infty}g(t)e^{-i\omega t}dt = \frac{1}{\sqrt{2\pi}}\int_{-\infty}^{\infty} 3sinc(t+c)e^{-i\omega t}dt$$
+
+Сделаем замену:
+\begin{cases}
+    x = t + c \;\Leftrightarrow\; t = x - c \\
+    dt = dx;\; t \rightarrow \pm \infty \Leftrightarrow x \rightarrow \pm \infty \\
+    e^{-iwt} = e^{-iw(x-c)} = e^{iwc}e^{-iwx}
+\end{cases}
+
+Получаем:
+
+$$\hat g(\omega) = \frac{e^{iwc}}{\sqrt{2\pi}}\int_{-\infty}^{\infty}3 sinc(x)e^{-i\omega x}dx$$
+
+Зная преобразование Фурье для кардинального синуса~\eqref{equation: sinc img}, можем переписать результат:
+
+$$\hat g(\omega) = e^{iwc} \cdot \Pi_{3, 1} (\omega),$$
+
+где $\Pi_{a, b}(\omega) = $ 
+\begin{cases}
+\sqrt{\frac{\pi}{2}} \cdot \frac{a}{b} & |\omega|\le b,\\[10pt]
+0, & |\omega|>b    
+\end{cases},
+
+Также можно было получить образ функции $g(t)$, если бы сразу воспользовались \textbf{свойством сдвига Фурье-оператора}: 
+$${\cal F}\{f(t+c)\} = e^{iwc}\cdot{\cal F}\{f(t)\}$$
 
 Исследование проводилось для трёх значений сдвига: $c \in \{0, 1, 2\}$.
-
-\subsection{Аналитические выражения и свойства преобразования}
-
-Согласно свойству сдвига преобразования Фурье, если функция сдвинута на величину $c$ во временной области, то её Фурье-образ умножается на фазовый множитель:
-\[
-\hat{g}(\omega) = e^{i\omega c} \cdot \hat{f}(\omega)
-\]
-
-Образ кардинального синуса в унитарной нормировке является конечной функцией в частотной области. Фазовый множитель $e^{i\omega c} = \cos(\omega c) + i\sin(\omega c)$ изменяет вещественную и мнимую части образа, но не влияет на его модуль:
-\[
-|\hat{g}(\omega)| = |e^{i\omega c}| \cdot |\hat{f}(\omega)| = |\hat{f}(\omega)|
-\]
-
-\subsection{Методика вычислений}
-
-Унитарное преобразование Фурье вычислялось численно методом трапеций:
-
-\begin{minted}{python}
-def compute_uni_Fourier_unitary(f, t, dw, w_max):
-    ImgArr = []
-    wArr = []
-    for w in np.arange(0, w_max, dw):
-        wArr.append(w)
-        integrand = f * np.exp(-1j * w * t)
-        integral = trapezoid(integrand, t)
-        fourier_coeff = integral / np.sqrt(2 * np.pi)
-        ImgArr.append(fourier_coeff)
-    return (np.array(wArr), np.array(ImgArr))
-\end{minted}
-
-Параметры: временная сетка $t \in [-10, 10]$ с 3000 точками, шаг по частоте $\Delta\omega = 0.05$, $\omega_{\max} = 8$ рад/с.
 
 \subsection{Результаты}
 
 На рис.~\ref{fig:complex_originals} представлены оригиналы функции $g(t) = 3\,\mathrm{sinc}(t + c)$ для выбранных значений $c$. При $c = 0$ функция чётная. Увеличение $c$ смещает функцию влево, сохраняя её форму и амплитуду.
 
 \begin{figure}[H] 
-    \includegraphics[width=1\textwidth]{graphs/figure_3.pdf}
+    \includegraphics[width=1\textwidth]{pete-graphs/figure_3.pdf}
     \caption{Оригиналы функции $g(t) = 3\,\mathrm{sinc}(t + c)$}
     \label{fig:complex_originals}
 \end{figure}
 
-На рис.~\ref{fig:complex_fourier0},~\ref{fig:complex_fourier1},~\ref{fig:complex_fourier2} показаны компоненты Фурье-образа для каждого значения $c$: вещественная часть, мнимая часть и модуль.
+На рис.~\ref{fig:complex_fourier0},~\ref{fig:complex_fourier1},~\ref{fig:complex_fourier2} показаны компоненты Фурье-образа для всех значений $c$: вещественная часть, мнимая часть и модуль.
+Вещественная~\eqref{eq:rel} и мнимая~\eqref{eq:im} части выражаются следующим образом (по формуле Эйлера):
+\begin{equation}
+    Re\;\hat g(\omega) = \Pi_{3, 1}\cdot cos(wc)
+    \label{eq:rel}
+\end{equation}
+\begin{equation}
+    Im\;\hat g(\omega) = \Pi_{3, 1}\cdot sin(wc)
+    \label{eq:im}
+\end{equation}
 
 \begin{figure}[H] 
-    \includegraphics[width=1\textwidth]{graphs/figure_4.pdf}
+    \centering
+    \includegraphics[width=0.95\textwidth]{pete-graphs/figure_4.pdf}
     \caption{Фурье-образ при $c = 0$}
     \label{fig:complex_fourier0}
 \end{figure}
 
 \begin{figure}[H] 
-    \includegraphics[width=1\textwidth]{graphs/figure_5.pdf}
+    \centering
+    \includegraphics[width=0.95\textwidth]{pete-graphs/figure_5.pdf}
     \caption{Фурье-образ при $c = 1$}
     \label{fig:complex_fourier1}
 \end{figure}
 
 \begin{figure}[H] 
-    \includegraphics[width=1\textwidth]{graphs/figure_6.pdf}
+    \centering
+    \includegraphics[width=0.95\textwidth]{pete-graphs/figure_6.pdf}
     \caption{Фурье-образ при $c = 2$}
     \label{fig:complex_fourier2}
 \end{figure}
 
 \subsection{Вывод}
-
-Модуль образа $|\hat{g}(\omega)|$ во всех трёх случаях практически идентичен. Это подтверждает, что фазовый множитель $e^{i\omega c}$ не влияет на амплитуду спектра, только на его фазу. Модуль сосредоточен в области низких частот и затухает при увеличении $\omega$.
-
-При $c = 0$ функция чётная, поэтому её образ вещественный: $\mathrm{Im}(\hat{g}(\omega)) \approx 0$. При $c > 0$ фазовый множитель вводит комплексность:
-\[
-\mathrm{Re}(\hat{g}(\omega)) = |\hat{f}(\omega)| \cos(\omega c), \quad \mathrm{Im}(\hat{g}(\omega)) = |\hat{f}(\omega)| \sin(\omega c)
-\]
-
-Величина сдвига $c$ определяет скорость осцилляции фазы. С увеличением $c$ от 1 к 2 вещественная и мнимая части чередуются интенсивнее.
-
-Численные результаты подтверждают теоретическое свойство сдвига преобразования Фурье: сдвиг сигнала во времени приводит к сдвигу фазы образа без изменения его модуля. Это свойство играет важную роль при выполнении задач, где фазовая информация более значима, чем амплитудная.
-
+Модуль образа $|\hat g(\omega)|$ во всех случаях идентичен, что ещё раз подтверждает, что он определяет только частотный спектр образа, поэтому временной сдвиг не влияет на него.
+Если ещё раз взглянуть на выражения~\eqref{eq:rel},~\eqref{eq:im} вещественной и мнимой частей Фурье-образа, можно заметить, что параметр $c$ содержится в $cos$ и $sin$, то есть он влияет на частоту осциляций соответствующей части. То есть сдвиг по времени изменяет фазовую структуру спектра.
 \newpage
 \section{Музыкальное}
 
@@ -789,7 +780,7 @@ def compute_Fourier_image(f, t, dV, V): ...
 Из нашего аккорда №6 получился следующий график:
 
 \begin{figure}[H] 
-    \includegraphics[width=1\textwidth]{graphs/figure_1.pdf}
+    \includegraphics[width=1\textwidth]{pete-graphs/figure_1.pdf}
     \caption{График функции аккорда}
 \end{figure}
 
@@ -797,7 +788,7 @@ def compute_Fourier_image(f, t, dV, V): ...
 Выбранные перцентили также можно увидеть на рис.~\ref{fig: task3 image}.
 
 \begin{figure}[H] 
-    \includegraphics[width=1\textwidth]{graphs/figure_2.pdf}
+    \includegraphics[width=1\textwidth]{pete-graphs/figure_2.pdf}
     \caption{График модуля образа функции аккорда}
     \label{fig: task3 image}
 \end{figure}
@@ -817,7 +808,6 @@ A3 A4 G#2 D4 F#4 D3
 Содержащиеся ноты:
 A3 F#3 A4 G#2 D4 F#4 D3
 \end{minted}
-\caption{outp: Вывод }
 
 % Некоторые базовые знания музыки позволяют провести более подробный анализ результатов
 Так как автор данной части работы увлекается музыкой, он решил эмпирическим путём выяснить, что из себя представляет Аккорд №6: при помощи гитары и слуха был подобран аккорд Ре-Мажор и определены составляющие ноты (Ля малой октавы, Ре малой и первой октав и Фа-Диез первой октавы, они же A3, D3, D4, F\#4), которые стали ориентиром при анализе Фурье-образа.
@@ -825,7 +815,7 @@ A3 F#3 A4 G#2 D4 F#4 D3
 Идеальной точности распознавания добиться не удалось, так как при очень больших перцентилях функция теряла одну ноту аккорда, из-за чего он становился неполным, а при уменьшении порога появлялся шум в виде нот, уже не относящихся к этому аккорду.
 
 \begin{itemize}
-    \item При пороге 0.002 (перцентиль 97\%), было обнаружено 32 пика, в котором помимо нужных нам 4 нот имеются "выбросы" F\#3, G\#2, A4. Данные пики могли возникнуть из-за особенностей звукоизвлечения при игре гитаре. В момент удара по струнам помимо звука самих зажатых струн имеется звук самого удара, который может так же проявляться пиком на графике Фурье-образа, смешиваясь с негромкими оттенками аккорда.
+    \item При пороге 0.002 (перцентиль 97\%), было обнаружено 32 пика, в котором помимо нужных нам 4 нот имеются <<выбросы>> F\#3, G\#2, A4. Данные пики могли возникнуть из-за особенностей звукоизвлечения при игре гитаре. В момент удара по струнам помимо звука зажатых струн имеется звук самого удара, который может так же проявляться пиком на графике Фурье-образа, смешиваясь с негромкими оттенками аккорда.
     \item Повысив порог до 0.0024 (перцентиль 98\%), мы смогли избавиться от одной лишней ноты! Но выбросы всё ещё остались.
     \item При пороге 0.0042 (перцентиль 99\%), мы получаем набор A3, D3, D4, что соответствует power-аккорду D5, в котором отсутствует терция (F\#/Фа-Диез). Не Ре-Мажор.
 \end{itemize}
@@ -852,7 +842,7 @@ import librosa as lb
 from joblib import Memory
 import tempfile
 
-plt.rcParams.update({'font.size': 14})
+plt.rcParams.update({'font.size': 16})
 
 def save_separate_figures(extension="pdf", path=""):
     """ Saves each active matplotlib figure to a separate file. """
@@ -865,78 +855,60 @@ def save_separate_figures(extension="pdf", path=""):
         plt.savefig(path+filename)
         print(f"Сохранен файл: {filename}")
 
-cache_dir = tempfile.gettempdir() + '/freq_methods/lab2/fourier_cache'
-memory = Memory(cache_dir, verbose=0)
-
-### ЗАДАНИЕ 2
-
 def card_sin(t, a, b, c): 
     return a * np.sinc(b*t + c)
 
-@memory.cache
-def compute_uni_Fourier_unitary(f, t, dw, w_max):
-    ImgArr = []
-    wArr = []
-    for w in np.arange(0, w_max, dw):
-        wArr.append(w)
-        integrand = f * np.exp(-1j * w * t)
-        integral = trapezoid(integrand, t)
-        fourier_coeff = integral / np.sqrt(2 * np.pi)
-        ImgArr.append(fourier_coeff)
-    return (np.array(wArr), np.array(ImgArr))
+def analytic_Fourier_card_sin(omega, a, b, c):
+    Rect = lambda w, a, b: np.where(np.abs(w) <= b, np.sqrt(np.pi/2) * a/b, 0)
+    return np.exp(1j*omega*c)*Rect(omega, a, b)
 
 a, b = 3, 1
 c_values = [0, 1, 2]
-t = np.linspace(-5, 5, 1000)
-dw = 0.05
-w_max = 8
+t = np.linspace(-10, 10, 1000)
+omega = np.linspace(-5, 5, 1000)
 
 plt.figure(figsize=(14, 6))
 for c in c_values:
     g_t = card_sin(t, a, b, c)
     plt.plot(t, g_t, label=f'c = {c}', linewidth=2)
-
-plt.title(r"Оригиналы $g(t) = \mathrm{sinc}(t + c)$", fontsize=14)
+plt.title(r"Оригиналы $g(t) = \mathrm{sinc}(t + c)$")
 plt.xlabel(r"$t$")
 plt.ylabel(r"$g(t)$")
 plt.grid(True, alpha=0.3)
 plt.legend()
 plt.tight_layout()
 
+
 for c in c_values:
-    t_calc = np.linspace(-10, 10, 3000)
-    g_t = card_sin(t_calc, a, b, c)
-    
-    w_arr, g_hat = compute_uni_Fourier_unitary(g_t, t_calc, dw, w_max)
-    
-    real_part = np.real(g_hat)
-    imag_part = np.imag(g_hat)
-    modulus = np.abs(g_hat)
+    img_g_t = analytic_Fourier_card_sin(omega, a, b, c)
+
+    real_part = np.real(img_g_t)
+    imag_part = np.imag(img_g_t)
+    modulus = np.abs(img_g_t)
     
     plt.figure(figsize=(14, 10))
     
-    # Вещественная часть
     plt.subplot(3, 1, 1)
-    plt.plot(w_arr, real_part, 'b-', linewidth=2)
-    plt.title(rf"Фурье-образ $\hat{{g}}(\omega)$ при $c = {c}$", fontsize=14)
+    plt.plot(omega, real_part, 'b-', linewidth=2)
+    plt.title(rf"Фурье-образ $\hat{{g}}(\omega)$ при $c = {c}$")
     plt.ylabel(r"$\mathrm{Re}(\hat{g}(\omega))$")
     plt.grid(True, alpha=0.3)
     
-    # Мнимая часть
     plt.subplot(3, 1, 2)
-    plt.plot(w_arr, imag_part, 'r-', linewidth=2)
+    plt.plot(omega, imag_part, 'r-', linewidth=2)
     plt.ylabel(r"$\mathrm{Im}(\hat{g}(\omega))$")
     plt.grid(True, alpha=0.3)
     
-    # Модуль
     plt.subplot(3, 1, 3)
-    plt.plot(w_arr, modulus, 'g-', linewidth=2)
+    plt.plot(omega, modulus, 'g-', linewidth=2)
     plt.ylabel(r"$|\hat{g}(\omega)|$")
     plt.xlabel(r"$\omega$, рад/с")
     plt.grid(True, alpha=0.3)
     
     plt.tight_layout()
 
+plt.show()
+save_separate_figures(path="lab2/pete-graphs/")
 \end{minted}
 \label{code: task2}
 
@@ -952,7 +924,7 @@ import librosa as lb
 from joblib import Memory
 import tempfile
 
-plt.rcParams.update({'font.size': 14})
+plt.rcParams.update({'font.size': 16})
 
 def save_separate_figures(extension="pdf", path=""):
     """ Saves each active matplotlib figure to a separate file. """

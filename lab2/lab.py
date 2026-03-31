@@ -98,7 +98,7 @@ for p in [1, 2, 3]:
 #     note = lb.hz_to_note(note_freq[i])
 #     print(f"{note_freq[i]:0.2f}Hz: интенсивность {freq_values[0][i]:.3f}; note {note}")
 
-plt.plot(Varr, ampl, label=r"|\hat f(\nu)|", linewidth=2.5)
+plt.plot(Varr, ampl, label=r"$|\hat f(\nu)|$", linewidth=2.5)
 
 plt.xlabel(r"$\nu$, Гц")
 plt.ylabel(r"|$\hat f(\nu)$|")
@@ -112,44 +112,15 @@ plt.tight_layout()
 def card_sin(t, a, b, c): 
     return a * np.sinc(b*t + c)
 
-@memory.cache
-def compute_uni_Fourier_unitary(f, t, dw, w_max):
-    """
-    Вычисляет унитарное преобразование Фурье к угловой частоте ω
-    ĝ(ω) = (1/√(2π)) * ∫ g(t) * e^(-iωt) dt
-    """
-    ImgArr = []
-    wArr = []
-    for w in np.arange(0, w_max, dw):
-        wArr.append(w)
-        integrand = f * np.exp(-1j * w * t)
-        integral = trapezoid(integrand, t)
-        fourier_coeff = integral / np.sqrt(2 * np.pi)
-        ImgArr.append(fourier_coeff)
-    return (np.array(wArr), np.array(ImgArr))
+def analytic_Fourier_card_sin(omega, a, b, c):
+    Rect = lambda w, a, b: np.where(np.abs(w) <= b, np.sqrt(np.pi/2) * a/b, 0)
+    return np.exp(1j*omega*c)*Rect(omega, a, b)
 
-# Параметры
 a, b = 3, 1
 c_values = [0, 1, 2]
+t = np.linspace(-10, 10, 1000)
+omega = np.linspace(-5, 5, 1000)
 
-print("\n" + "="*60)
-print("ЗАДАНИЕ 2: Фурье-образ сдвинутой функции")
-print("="*60)
-print(f"Функция: g(t) = {a}*sinc({b}*t + c)")
-print(f"Значения сдвига c: {c_values}\n")
-
-# Временная сетка
-t = np.linspace(-5, 5, 1000)
-dw = 0.05
-w_max = 8
-
-# Аналитическое выражение
-print("Аналитическое выражение:")
-print("g(t) = sinc(t + c)")
-print("ĝ(ω) = e^(iωc) * ŝinc(ω)")
-print("Сдвиг на c в области времени => фазовый множитель e^(iωc) в области частот\n")
-
-# 1. График оригиналов
 plt.figure(figsize=(14, 6))
 for c in c_values:
     g_t = card_sin(t, a, b, c)
@@ -161,43 +132,34 @@ plt.grid(True, alpha=0.3)
 plt.legend()
 plt.tight_layout()
 
-# 2. Для каждого c вычисляем и рисуем Фурье-образ
+
 for c in c_values:
-    t_calc = np.linspace(-10, 10, 3000)
-    g_t = card_sin(t_calc, a, b, c)
+    img_g_t = analytic_Fourier_card_sin(omega, a, b, c)
+
+    real_part = np.real(img_g_t)
+    imag_part = np.imag(img_g_t)
+    modulus = np.abs(img_g_t)
     
-    w_arr, g_hat = compute_uni_Fourier_unitary(g_t, t_calc, dw, w_max)
-    
-    real_part = np.real(g_hat)
-    imag_part = np.imag(g_hat)
-    modulus = np.abs(g_hat)
-    
-    # Одна фигура с тремя subplots
     plt.figure(figsize=(14, 10))
     
-    # Вещественная часть
     plt.subplot(3, 1, 1)
-    plt.plot(w_arr, real_part, 'b-', linewidth=2)
+    plt.plot(omega, real_part, 'b-', linewidth=2)
     plt.title(rf"Фурье-образ $\hat{{g}}(\omega)$ при $c = {c}$")
     plt.ylabel(r"$\mathrm{Re}(\hat{g}(\omega))$")
     plt.grid(True, alpha=0.3)
     
-    # Мнимая часть
     plt.subplot(3, 1, 2)
-    plt.plot(w_arr, imag_part, 'r-', linewidth=2)
+    plt.plot(omega, imag_part, 'r-', linewidth=2)
     plt.ylabel(r"$\mathrm{Im}(\hat{g}(\omega))$")
     plt.grid(True, alpha=0.3)
     
-    # Модуль
     plt.subplot(3, 1, 3)
-    plt.plot(w_arr, modulus, 'g-', linewidth=2)
+    plt.plot(omega, modulus, 'g-', linewidth=2)
     plt.ylabel(r"$|\hat{g}(\omega)|$")
     plt.xlabel(r"$\omega$, рад/с")
     plt.grid(True, alpha=0.3)
     
     plt.tight_layout()
 
-print("Вывод: сдвиг c меняет фазу Фурье-образа (вещественную и мнимую части),")
-print("но модуль |ĝ(ω)| остается неизменным для всех значений c")
 # plt.show()
-save_separate_figures(path="lab2/graphs/")
+save_separate_figures(path="lab2/pete-graphs/")

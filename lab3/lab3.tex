@@ -1,0 +1,256 @@
+\documentclass[a4paper, 12pt]{article}
+
+% Essential packages
+\usepackage[T1, T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian, english]{babel}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{indentfirst}
+\usepackage{authblk}
+\usepackage{gensymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{minted}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{titlesec}
+
+\captionsetup[figure]{name=Рис., aboveskip=0.5pt, belowskip=0.5pt}
+
+
+\captionsetup[table]{name=Табл., aboveskip=1pt, belowskip=0.5pt}
+
+\setminted{
+    breaklines=true,
+    breakautoindent=true,
+    breakindent=20pt,
+    fontsize=\small,  % опционально: уменьшает шрифт
+    frame=lines,      % опционально: рамка для наглядности
+    framesep=2mm
+}
+
+% \lstset{
+%     language=Matlab,
+%     basicstyle=\ttfamily\small,
+%     numbers=left,
+%     numberstyle=\tiny,
+%     stepnumber=1,
+%     breaklines=true,
+%     keywordstyle=\color{blue},
+%     commentstyle=\color{green!50!black},
+%     stringstyle=\color{red},
+%     frame=single
+% }
+
+% Page margins setup
+\geometry{left=2cm, right=2cm, bottom=2cm, top=2cm}
+
+% Hyperlink setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan
+}
+
+\titleformat{\section}
+  {\newpage\normalfont\Large\bfseries} % Формат заголовка (добавляем \newpage)
+  {\thesection.}
+  {1em}
+  {}  
+
+\begin{document}
+\begin{titlepage}
+
+\begin{minipage}[c]{0.65\textwidth}
+    {\vspace{0.5cm}\Large\textbf{УНИВЕРСИТЕТ ИТМО}}\\
+    \small{Факультет Систем Управления и Робототехники}
+\end{minipage}
+\begin{minipage}[c]{0.35\textwidth}
+    \begin{flushright}
+        \includegraphics[width=0.8\textwidth]{itmo.png}
+    \end{flushright}
+\end{minipage}
+
+\vfill
+\vfill
+
+\begin{center}
+\textbf{\Large Лабораторная работа №3 <<Частотные методы>>}\\[5pt]
+{\large Частотные методы}
+
+
+\vfill
+\vfill
+
+\begin{flushleft}
+    Выполнили:\\
+    \text{Бурдасова Виктория: 465306}\\
+    \text{Жаворонков Пётр: 465877}\\
+    \text{Беляев Александр: 465203}
+\end{flushleft}
+
+\vfill
+
+Санкт-Петербург\\
+2026
+
+\end{center}
+\end{titlepage}
+\renewcommand*\contentsname{Содержание}
+\tableofcontents
+
+\section{Фильтрация звука}
+\subsection{Постановка задачи}
+Загрузить с диска файл \texttt{MUHA.wav} и при помощи фильтрации Фурье-образа очистить сигнал от шумов, оставив только голос. 
+
+Для преобразования аудиофайла в массив со значениями сигнала использовалась Python-библиотека librosa. 
+Для Фурье-преобразований были использованы методы \texttt{signal.fft: fft, fftshift, ifft, ifftshift.}
+Для воспроизведения полученного сигнала как аудиозаписи был использован метод \texttt{sounddevice.play()} (библиотека sounddevice).
+
+\subsection{Ход работы}
+Опустим вывод аудиофайла как графика функции сигнала и сразу перейдём к модулю образа. 
+Далее под образом будет подразумеваться модуль сдвинутого образа, полученный путём преобразования \texttt{img = fftshift(fft(signal))}.
+Образ исходника выглядит следующим образом:
+\begin{figure}[H]
+    \includegraphics[width=1\textwidth]{pete-graphs/figure_2.pdf}
+    \caption{Модуль образа исходного сигнала}
+    \label{fig:t2_source_img}
+\end{figure}
+
+Перед нами явно была поставлена задача: отделить речь в записи от шумов.
+Для выделения речи мы решили обратиться к стандартным в телефонии значениям и положить, что речевая полоса частот лежит в диапазоне от 300 Гц до 3400 Гц.
+В связи с тем, что целевой диапазон нам известен, выбор пал на полосовой фильтр: мы отсекаем всё, кроме нужного нам диапазона.
+
+Реализация фильтра в \texttt{Python} выглядит следующим образом:
+\begin{minted}{python}
+LOW_FREQ = 300    
+HIGH_FREQ = 3400
+mask = numpy.zeros_like(img_muha_f)
+ind = numpy.where((np.abs(freq) < HIGH_FREQ) & (np.abs(freq) > LOW_FREQ))
+mask[ind]=1
+filtered_muha_img = img_muha_f * mask
+\end{minted}
+
+Если посмотреть на модуль отфильтрованного образа (рис. \ref{fig:t2_filtered_img}) сразу видны колоссальные изменения: 
+в связи с тем, что многие низкочастотные шумы имели очень высокие амплитуды, после фильтрации осталась только низкоамплитудная информативная часть (максимум уменьшился на 2 порядка).
+
+\begin{figure}[H]
+    \includegraphics[width=1\textwidth]{pete-graphs/figure_3.pdf}
+    \caption{Модуль образа исходного сигнала}
+    \label{fig:t2_filtered_img}
+\end{figure}
+
+То же самое видно при сравнении графиков сигнала (рис. \ref{fig:t2_res}) до и после фильтрации.
+
+\begin{figure}[H]
+    \includegraphics[width=1\textwidth]{pete-graphs/figure_5.pdf}
+    \caption{Модуль образа исходного сигнала}
+    \label{fig:t2_res}
+\end{figure}
+
+\subsection{Вывод}
+При прослушивании получившейся аудиозаписи отчётливо слышно фразу <<Муха -- это маленькая птичка!>>, причем отсутствуют в целом какие-то аудиоартефакты, шумы. Только информация о мухе.
+
+\section{Приложения}
+
+\subsection{Код к заданию 2}
+\begin{minted}{python}
+from scipy.fft import fft, fftshift, ifft, ifftshift
+import matplotlib.pyplot as plt
+import numpy as np
+
+from librosa import load
+import sounddevice as sd
+
+plt.rcParams.update({'font.size': 16})
+
+def save_separate_figures(extension="pdf", path=""):
+    """ Saves each active matplotlib figure to a separate file. """
+    # Получаем номера всех созданных фигур
+    fig_nums = plt.get_fignums()
+
+    for i in fig_nums:
+        plt.figure(i)
+        filename = f"figure_{i}.{extension}"
+        plt.savefig(path+filename)
+        print(f"Сохранен файл: {filename}")
+
+def setup_plot(figsize=(14, 6)):
+    plt.figure(figsize=figsize)
+    plt.grid()
+
+muha_f, muha_sr = load("lab3/MUHA.wav", mono=True)
+dt = 1/muha_sr
+T = len(muha_f)*dt
+t = np.linspace(0, T, len(muha_f))
+
+freq = fftshift(np.fft.fftfreq(len(muha_f), dt))
+
+setup_plot()
+plt.title("Исходный сигнал MUHA.wav")
+plt.plot(t, np.real(muha_f), linewidth=2, label="Исходный сигнал")
+plt.legend()
+plt.xlabel(r"$t$")
+plt.ylabel(r"$f(t)$")
+img_muha_f = fftshift(fft(muha_f))
+
+setup_plot()
+plt.title("Модуль образа исходного сигнала")
+plt.plot(freq, np.abs(img_muha_f), linewidth=2, label="Образ исходника")
+plt.xlim([-4000, 4000])
+plt.legend()
+plt.xlabel(r"$t$")
+plt.ylabel(r"|$\hat f(t)$|")
+HIGH_FREQ = 3400
+LOW_FREQ = 300
+
+mask = np.zeros_like(img_muha_f)
+ind = np.where((np.abs(freq) < HIGH_FREQ) & (np.abs(freq) > LOW_FREQ))
+mask[ind]=1
+filtered_muha_img = img_muha_f * mask
+mask[ind]=max(np.abs(filtered_muha_img))
+
+setup_plot()
+plt.title("Модуль образа после применения фильтра")
+plt.plot(freq, np.abs(filtered_muha_img), linewidth=2, label="Фильтрованный образ")
+plt.plot(freq, mask, linewidth=1.5, color="orange", label="Полосовой фильтр")
+plt.xlim([-4000, 4000])
+plt.xlabel(r"$t$")
+plt.ylabel(r"|$\hat f(t)$|")
+plt.legend()
+
+filtered_muha = ifft(ifftshift(filtered_muha_img))
+
+setup_plot()
+plt.title("Отфильтрованный сигнал MUHA.wav")
+plt.plot(t, np.real(filtered_muha), linewidth=2, label="Отфильтрованный сигнал")
+plt.legend()
+plt.xlabel(r"$t$")
+plt.ylabel(r"$f(t)$")
+
+setup_plot()
+plt.title("Сравнение сигналов до и после обработки")
+plt.xlabel(r"$t$")
+plt.ylabel(r"$f(t)$, $f_t(t)$")
+
+plt.plot(t, np.real(muha_f), linewidth=4, color="orange", label="Исходный сигнал")
+plt.plot(t, np.real(filtered_muha), linewidth=3, color="green", label="Обработанный сигнал")
+plt.legend()
+plt.fill_between(t, np.real(filtered_muha), np.real(muha_f), alpha=0.4, color="orange")
+
+sd.play(np.real(muha_f), muha_sr)
+sd.wait()
+sd.play(np.real(filtered_muha), muha_sr)
+sd.wait()
+
+save_separate_figures(path="lab3/pete-graphs/")
+# plt.show()
+\end{minted}
+
+\end{document}

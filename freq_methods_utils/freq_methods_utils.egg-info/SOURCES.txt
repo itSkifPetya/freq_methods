@@ -1,0 +1,11 @@
+setup.py
+freq_methods_utils/__init__.py
+freq_methods_utils/imports.py
+freq_methods_utils/lab1_utils.py
+freq_methods_utils/lab2_utils.py
+freq_methods_utils/utils.py
+freq_methods_utils.egg-info/PKG-INFO
+freq_methods_utils.egg-info/SOURCES.txt
+freq_methods_utils.egg-info/dependency_links.txt
+freq_methods_utils.egg-info/requires.txt
+freq_methods_utils.egg-info/top_level.txt
